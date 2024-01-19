@@ -28,6 +28,7 @@
             nativeBuildInputs = with pkgs; [
               (haskell-language-server.override {
                 supportedGhcVersions = [ ghcVersion ];
+                supportedFormatters = [ "ormolu" ];
               })
               cabal-install
               ghcid
