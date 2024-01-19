@@ -25,11 +25,13 @@
         in {
           default = hsPackage.shellFor {
             packages = _: [ self.packages.${system}.default ];
-            nativeBuildInputs = [
-              (hsPackage.haskell-language-server.override {
+            nativeBuildInputs = with pkgs; [
+              (haskell-language-server.override {
                 supportedGhcVersions = [ ghcVersion ];
               })
-            ] ++ (with pkgs; [ cabal-install ghcid ]);
+              cabal-install
+              ghcid
+            ];
             withHoogle = true;
           };
         }) nixpkgs.legacyPackages;
