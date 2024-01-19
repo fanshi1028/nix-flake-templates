@@ -1,6 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url =
+      "github:NixOS/nixpkgs/fc00ff355ab4fea966098b2cb87104bd72163384";
     nix-github-actions = {
       url =
         "github:nix-community/nix-github-actions/5163432afc817cf8bd1f031418d1869e4c9d5547";
