@@ -1,0 +1,12 @@
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  nix-build:
+    uses: ./.github/workflows/nix.yml
+    secrets:
+      CACHIX_AUTH_TOKEN: ${{secrets.CACHIX_AUTH_TOKEN}}
+  cabal-build:
+    uses: ./.github/workflows/cabal.yml
