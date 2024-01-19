@@ -17,7 +17,6 @@
       "original": {
         "owner": "nix-community",
         "repo": "nix-github-actions",
-        "rev": "5163432afc817cf8bd1f031418d1869e4c9d5547",
         "type": "github"
       }
     },
@@ -33,7 +32,6 @@
       "original": {
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "fc00ff355ab4fea966098b2cb87104bd72163384",
         "type": "github"
       }
     },
