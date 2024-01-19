@@ -9,11 +9,11 @@ on:
 
 jobs:
   cabal:
-    uses: ./haskell/.github/workflows/cabal.yml
+    uses: ./.github/workflows/haskell-cabal.yml
     with:
       working-directory: ./haskell
   nix:
-    uses: ./haskell/.github/workflows/nix.yml
+    uses: ./.github/workflows/haskell-nix.yml
     with:
       working-directory: ./haskell
     secrets:
