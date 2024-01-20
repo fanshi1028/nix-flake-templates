@@ -31,6 +31,7 @@
                 supportedFormatters = [ "ormolu" ];
               })
               cabal-install
+              cabal2nix
               ghcid
             ];
             withHoogle = true;
@@ -54,4 +55,11 @@
         };
       };
     };
+
+  nixConfig = {
+    extra-substituters = [ "https://fanshi1028-personal.cachix.org" ];
+    extra-trusted-public-keys = [
+      "fanshi1028-personal.cachix.org-1:XoynOisskxlhrHM+m5ytvodedJdAo8gKpam/L6/AmBI="
+    ];
+  };
 }
