@@ -31,6 +31,7 @@
                 supportedFormatters = [ "ormolu" ];
               })
               cabal-install
+              cabal2nix
               ghcid
             ];
             withHoogle = true;
