@@ -32,6 +32,7 @@
               })
               cabal-install
               cabal2nix
+              haskellPackages.cabal-fmt
               ghcid
             ];
             withHoogle = true;
