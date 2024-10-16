@@ -11,46 +11,43 @@
     in {
 
       packages = builtins.mapAttrs (system: pkgs:
-        let
-          attrs = pkgs.lib.genAttrs ghcVersions (ghcVersion:
-            pkgs.haskell.packages."ghc${ghcVersion}".developPackage {
-              root = ./.;
-              modifier = drv: pkgs.haskell.lib.appendConfigureFlag drv "-O2";
-            });
-        in attrs // { default = attrs."${builtins.head ghcVersions}"; })
-        nixpkgs.legacyPackages;
+        pkgs.lib.genAttrs ghcVersions (ghcVersion:
+          pkgs.haskell.packages."ghc${ghcVersion}".developPackage {
+            root = ./.;
+            modifier = drv: pkgs.haskell.lib.appendConfigureFlag drv "-O2";
+          })) nixpkgs.legacyPackages;
 
       devShells = builtins.mapAttrs (system: pkgs:
-        let
-          attrs = pkgs.lib.genAttrs ghcVersions (ghcVersion:
-            pkgs.haskell.packages."ghc${ghcVersion}".shellFor {
-              packages = _: [ self.packages.${system}.default ];
-              nativeBuildInputs = with pkgs; [
-                (haskell-language-server.override {
-                  supportedGhcVersions = [ ghcVersion ];
-                  supportedFormatters = [ "ormolu" ];
-                })
-                cabal-install
-                cabal2nix
-                haskellPackages.cabal-fmt
-                ghcid
-              ];
-              withHoogle = true;
-            });
-        in attrs // { default = attrs."${builtins.head ghcVersions}"; })
-        nixpkgs.legacyPackages;
+        pkgs.lib.genAttrs ghcVersions (ghcVersion:
+          pkgs.haskell.packages."ghc${ghcVersion}".shellFor {
+            packages = _: [ self.packages.${system}.default ];
+            nativeBuildInputs = with pkgs; [
+              (haskell-language-server.override {
+                supportedGhcVersions = [ ghcVersion ];
+                supportedFormatters = [ "ormolu" ];
+              })
+              cabal-install
+              cabal2nix
+              haskellPackages.cabal-fmt
+              ghcid
+            ];
+            withHoogle = true;
+          })) nixpkgs.legacyPackages;
 
       checks = builtins.mapAttrs (system: pkgs:
-        with pkgs; {
-          default = self.packages.${system}.default;
-          shell = self.devShells.${system}.default;
-        }) nixpkgs.legacyPackages;
+        let
+          devShellChecks = pkgs.lib.mapAttrs' (ghcVersion: value: {
+            name = "${ghcVersion}-shell";
+            inherit value;
+          }) self.devShells.${system};
+          packageChecks = pkgs.lib.mapAttrs' (ghcVersion: value: {
+            name = "${ghcVersion}-package";
+            inherit value;
+          }) self.packages.${system};
+        in packageChecks // devShellChecks) nixpkgs.legacyPackages;
 
       githubActions = nix-github-actions.lib.mkGithubMatrix {
-        checks =
-          builtins.mapAttrs (_: checks: { inherit (checks) default shell; }) {
-            inherit (self.checks) x86_64-linux x86_64-darwin;
-          };
+        checks = { inherit (self.checks) x86_64-linux x86_64-darwin; };
         platforms = {
           x86_64-linux = "ubuntu-22.04";
           x86_64-darwin = "macos-13";
