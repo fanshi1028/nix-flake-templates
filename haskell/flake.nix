@@ -7,37 +7,38 @@
     };
   };
   outputs = { self, nixpkgs, nix-github-actions }:
-    let
-      ghcVersion = "96";
-      mkHsPackage = pkgs: pkgs.haskell.packages."ghc${ghcVersion}";
+    let ghcVersions = [ "98" "910" ];
     in {
 
-      packages = builtins.mapAttrs (system: pkgs: {
-        default = ((mkHsPackage pkgs).developPackage {
-          root = ./.;
-          modifier = drv: pkgs.haskell.lib.appendConfigureFlag drv "-O2";
-        });
-      }) nixpkgs.legacyPackages;
+      packages = builtins.mapAttrs (system: pkgs:
+        let
+          attrs = pkgs.lib.genAttrs ghcVersions (ghcVersion:
+            pkgs.haskell.packages."ghc${ghcVersion}".developPackage {
+              root = ./.;
+              modifier = drv: pkgs.haskell.lib.appendConfigureFlag drv "-O2";
+            });
+        in attrs // { default = attrs."${builtins.head ghcVersions}"; })
+        nixpkgs.legacyPackages;
 
       devShells = builtins.mapAttrs (system: pkgs:
-        with pkgs;
-        let hsPackage = mkHsPackage pkgs;
-        in {
-          default = hsPackage.shellFor {
-            packages = _: [ self.packages.${system}.default ];
-            nativeBuildInputs = with pkgs; [
-              (haskell-language-server.override {
-                supportedGhcVersions = [ ghcVersion ];
-                supportedFormatters = [ "ormolu" ];
-              })
-              cabal-install
-              cabal2nix
-              haskellPackages.cabal-fmt
-              ghcid
-            ];
-            withHoogle = true;
-          };
-        }) nixpkgs.legacyPackages;
+        let
+          attrs = pkgs.lib.genAttrs ghcVersions (ghcVersion:
+            pkgs.haskell.packages."ghc${ghcVersion}".shellFor {
+              packages = _: [ self.packages.${system}.default ];
+              nativeBuildInputs = with pkgs; [
+                (haskell-language-server.override {
+                  supportedGhcVersions = [ ghcVersion ];
+                  supportedFormatters = [ "ormolu" ];
+                })
+                cabal-install
+                cabal2nix
+                haskellPackages.cabal-fmt
+                ghcid
+              ];
+              withHoogle = true;
+            });
+        in attrs // { default = attrs."${builtins.head ghcVersions}"; })
+        nixpkgs.legacyPackages;
 
       checks = builtins.mapAttrs (system: pkgs:
         with pkgs; {
