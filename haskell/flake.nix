@@ -20,14 +20,14 @@
       devShells = builtins.mapAttrs (system: pkgs:
         pkgs.lib.genAttrs ghcVersions (ghcVersion:
           pkgs.haskell.packages."ghc${ghcVersion}".shellFor {
-            packages = _: [ self.packages.${system}.default ];
+            packages = _: [ self.packages.${system}.${ghcVersion} ];
             nativeBuildInputs = with pkgs; [
               (haskell-language-server.override {
                 supportedGhcVersions = [ ghcVersion ];
                 supportedFormatters = [ "ormolu" ];
               })
               cabal-install
-              cabal2nix
+              # cabal2nix
               haskellPackages.cabal-fmt
               ghcid
             ];
